@@ -16,7 +16,7 @@ type TaskId = Int
 type Description = String
 
 data Task = Task
-  { taskId :: Int
+  { taskId :: TaskId
   , description :: Description
   , completed :: Status
   , priority :: Priority
