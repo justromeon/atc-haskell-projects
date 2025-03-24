@@ -9,7 +9,7 @@ data Priority = Low
               deriving (Show, Enum)
 
 data Status = Todo 
-            | Done 
+            | Complete 
             deriving (Show, Enum)
 
 type TaskId = Int
