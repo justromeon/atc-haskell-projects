@@ -30,4 +30,4 @@ instance Show Task where
       desc
       (show comp)
       (show prio)
-      (show due)
+      (maybe "" show due)
