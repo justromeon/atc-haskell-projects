@@ -26,12 +26,18 @@ insertTask conn desc prioLevel dueDate = execute conn
   where
     priority = maybe 0 fromEnum prioLevel
 
-fetchTasks :: Connection -> Maybe Status -> IO [Task]
+fetchTasks :: Connection -> Maybe Status -> IO ()
 fetchTasks conn sortOption = do
-  case sortOption of
+  tasks <- case sortOption of
     Just Todo     -> query_ conn "SELECT * FROM tasks WHERE completed = 0 ORDER BY due_date IS NULL, due_date, priority DESC"
     Just Complete -> query_ conn "SELECT * FROM tasks WHERE completed = 1 ORDER BY due_date IS NULL, due_date, priority DESC"
     _             -> query_ conn "SELECT * FROM tasks ORDER BY due_date IS NULL, due_date, priority DESC"
+  if null (tasks :: [Task])
+    then putStrLn "No tasks found."
+    else do
+      putStrLn "Task | Description                              | Status    | Priority | Due Date"
+      putStrLn "-----+------------------------------------------+-----------+----------+------------"
+      mapM_ print tasks
 
 updateTaskMark :: Connection -> TaskId -> Status -> IO ()
 updateTaskMark conn taskId status = do
