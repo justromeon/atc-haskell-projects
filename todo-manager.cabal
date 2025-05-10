@@ -1,6 +1,6 @@
 -- todo-manager.cabal
 name:                todo-manager
-version:             0.1.0.0
+version:             0.2.0.0
 description:         A simple todo manager
 category:            CLI
 build-type:          Simple
@@ -9,6 +9,8 @@ cabal-version:       >=1.10
 executable todo-manager
   main-is:             Main.hs
   hs-source-dirs:      src
-  --other-modules:       
+  other-modules:       Todo
   default-language:    Haskell2010
-  build-depends:       base >=4.7 && <5
+  build-depends:       base >=4.7 && <5,
+                       text,
+                       time
