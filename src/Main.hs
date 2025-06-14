@@ -1,6 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Options.Applicative (execParser)
+
+import CLI
 
 main :: IO ()
-main = putStrLn "Rewrite"
+main = execParser commandParserInfo >>= print 
