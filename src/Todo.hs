@@ -2,21 +2,23 @@ module Todo where
 
 import Data.Char (toLower, isDigit)
 import Data.Text (Text, pack)
-import Data.Time.Calendar (Day)
 import Data.Time (defaultTimeLocale, parseTimeM)
+import Data.Time.Calendar (Day)
+import Database.SQLite.Simple
+import Database.SQLite.Simple.ToField
 
 --Domain Model
-newtype TaskId = TaskId Int
+newtype TaskId = TaskId {unTaskId :: Int}
   deriving Show
 
-newtype Description = Description Text
+newtype Description = Description { unDesc :: Text}
   deriving Show
 
 data Status = Incomplete | Complete
-  deriving Show
+  deriving (Show,Enum)
 
 data Priority = Low | Medium | High
-  deriving Show
+  deriving (Show,Enum)
 
 data Task = Task
     { taskId      :: TaskId
@@ -56,3 +58,23 @@ parseDueDate s =
     case parseTimeM True defaultTimeLocale "%Y-%m-%d" s of
         Just day -> Right day
         Nothing  -> Left $ "Invalid date format: '" ++ s ++ "'. Please use YYYY-MM-DD."
+
+instance FromRow Task where
+  fromRow = Task
+    <$> fmap TaskId field  
+    <*> fmap Description field
+    <*> fmap toEnum field      -- status
+    <*> fmap toEnum field      -- priority
+    <*> field                  -- date
+
+instance ToField TaskId where
+  toField = toField . unTaskId
+
+instance ToField Description where
+  toField = toField . unDesc
+
+instance ToField Status where
+  toField = toField . fromEnum
+
+instance ToField Priority where
+  toField = toField . fromEnum
