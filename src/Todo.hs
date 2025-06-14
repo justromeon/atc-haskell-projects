@@ -1,6 +1,6 @@
 module Todo where
 
-import Data.Char (toLower)
+import Data.Char (toLower, isDigit)
 import Data.Text (Text, pack)
 import Data.Time.Calendar (Day)
 import Data.Time (defaultTimeLocale, parseTimeM)
@@ -15,11 +15,11 @@ newtype Description = Description Text
 data Status = Incomplete | Complete
   deriving Show
 
-data Priority = None | Low | Medium | High
+data Priority = Low | Medium | High
   deriving Show
 
 data Task = Task
-    { taskId      :: Maybe TaskId
+    { taskId      :: TaskId
     , description :: Description
     , status      :: Status
     , priority    :: Priority
@@ -27,6 +27,12 @@ data Task = Task
     } deriving Show
 
 --Smart Constructors
+mkTaskId :: String -> Either String TaskId
+mkTaskId s = case reads s of
+  [(n,"")] | n >= 0 -> Right $ TaskId n
+  [(n,"")]          -> Left "ID cannot be negative or zero"
+  _                 -> Left $ "Contains non-digit characters: " ++ show (filter (not . isDigit ) s)
+
 mkDesc :: String -> Either String Description
 mkDesc s
     | null s    = Left "Description can't be empty."
@@ -40,11 +46,10 @@ mkStatus s = case map toLower s of
 
 mkPriority :: String -> Either String Priority
 mkPriority s = case map toLower s of
-    "none"   -> Right None
     "low"    -> Right Low
     "medium" -> Right Medium
     "high"   -> Right High
-    _        -> Left $ "Invalid priority: '" ++ s ++ "'. Must be one of: none, low, medium, high."
+    _        -> Left $ "Invalid priority: '" ++ s ++ "'. Must be one of: low, medium, high."
 
 parseDueDate :: String -> Either String Day
 parseDueDate s =
