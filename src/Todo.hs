@@ -6,6 +6,7 @@ import Data.Time (defaultTimeLocale, parseTimeM)
 import Data.Time.Calendar (Day)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.ToField
+import Text.Printf (printf)
 
 --Domain Model
 newtype TaskId = TaskId {unTaskId :: Int}
@@ -26,7 +27,7 @@ data Task = Task
     , status      :: Status
     , priority    :: Priority
     , dueDate     :: Maybe Day
-    } deriving Show
+    }
 
 --Smart Constructors
 mkTaskId :: String -> Either String TaskId
@@ -78,3 +79,12 @@ instance ToField Status where
 
 instance ToField Priority where
   toField = toField . fromEnum
+
+instance Show Task where
+  show (Task taskId desc stat prio due) =
+    printf "%-4d | %-40s | %-10s | %-8s | %-10s"
+      (unTaskId taskId)
+      (unDesc desc)
+      (show stat)
+      (show prio)
+      (maybe "" show due)

@@ -10,6 +10,7 @@ import Data.Text (pack)
 
 import CLI
 import Todo
+import Control.Monad (when)
 
 schema :: Query
 schema =
@@ -23,6 +24,11 @@ schema =
 
 initializeDB :: Connection -> IO ()
 initializeDB conn = execute_ conn schema
+
+idExists :: Connection -> TaskId -> IO Bool
+idExists conn taskId = do
+    result <- query conn "SELECT 1 FROM tasks WHERE id = ?" (Only taskId)
+    return $ not $ null (result :: [Only Int])
 
 insertTask :: Connection -> Description -> Maybe Priority -> Maybe Day -> IO ()
 insertTask conn desc prio due = do
@@ -47,15 +53,24 @@ displayTasks conn stat sorter = do
     tasks <- query_ conn $ partialQuery <> whereClause <> orderClause
     if null tasks
         then putStrLn "\nNo Tasks found, database is empty."
-        else mapM_ print (tasks :: [Task])
+        else do
+            putStrLn "\nTask | Description                              | Status     | Priority | Due Date"
+            putStrLn   "-----+------------------------------------------+------------+----------+-----------+"
+            mapM_ print (tasks :: [Task])
 
 setTaskComplete :: Connection -> TaskId -> IO ()
-setTaskComplete conn taskId = execute conn
-    "UPDATE tasks SET status = ? WHERE id = ?" (Complete, taskId)
+setTaskComplete conn taskId = do
+    taskIdExists <- idExists conn taskId
+    if taskIdExists
+        then execute conn "UPDATE tasks SET status = ? WHERE id = ?" (Complete, taskId)
+        else putStrLn $ "\nTask " ++ show (unTaskId taskId) ++ " does not exist"
 
 deleteTask :: Connection -> TaskId -> IO ()
-deleteTask conn taskId = execute conn
-    "DELETE FROM tasks WHERE id = ?" (Only taskId)
+deleteTask conn taskId = do
+    taskIdExists <- idExists conn taskId
+    if taskIdExists
+        then execute conn "DELETE FROM tasks WHERE id = ?" (Only taskId)
+        else putStrLn $ "\nTask " ++ show (unTaskId taskId) ++ " does not exist"
 
 updateTask :: Connection
            -> TaskId
@@ -80,6 +95,9 @@ updateTask conn taskId newDesc newStat newPrio newDue = do
                    <> Query (pack $ intercalate ", " updateFields)
                    <> " WHERE id = ?"
     
-    if null updateFields
-        then putStrLn $ "No new values entered. Task " ++ show (unTaskId taskId) ++ " stays the same."
-        else execute conn finalQuery updateValues
+    taskIdExists <- idExists conn taskId
+    if taskIdExists
+        then execute conn finalQuery updateValues
+        else putStrLn ("\nTask " ++ show (unTaskId taskId) ++ " does not exist")
+
+    when (null updateFields && taskIdExists) $ putStrLn "\nNo new values entered."
