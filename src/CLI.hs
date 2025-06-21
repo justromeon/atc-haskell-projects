@@ -1,8 +1,26 @@
 module CLI where
 
-import Options.Applicative
 import Data.Char (toLower)
 import Data.Time.Calendar (Day)
+import Options.Applicative
+    ( (<**>),
+      Parser,
+      ParserInfo,
+      optional,
+      argument,
+      command,
+      eitherReader,
+      footer,
+      header,
+      help,
+      info,
+      long,
+      metavar,
+      option,
+      progDesc,
+      short,
+      helper,
+      hsubparser )
 
 import Todo
 

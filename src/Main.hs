@@ -1,6 +1,6 @@
 module Main where
 
-import Database.SQLite.Simple
+import Database.SQLite.Simple (close, execute_, open)
 import Options.Applicative (execParser)
 
 import CLI

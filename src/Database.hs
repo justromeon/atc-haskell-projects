@@ -1,16 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Database where
 
+import Control.Monad (when)
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe, catMaybes)
 import Database.SQLite.Simple
+    ( execute,
+      execute_,
+      query,
+      query_,
+      Only(Only),
+      SQLData,
+      Connection,
+      Query(Query) )
 import Database.SQLite.Simple.ToField ( ToField(toField) )
 import Data.Time (Day)
 import Data.Text (pack)
 
 import CLI
 import Todo
-import Control.Monad (when)
 
 schema :: Query
 schema =

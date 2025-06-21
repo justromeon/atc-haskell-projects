@@ -2,10 +2,9 @@ module Todo where
 
 import Data.Char (toLower, isDigit)
 import Data.Text (Text, pack)
-import Data.Time (defaultTimeLocale, parseTimeM)
-import Data.Time.Calendar (Day)
-import Database.SQLite.Simple
-import Database.SQLite.Simple.ToField
+import Data.Time (Day, defaultTimeLocale, parseTimeM) 
+import Database.SQLite.Simple (FromRow(..), field)
+import Database.SQLite.Simple.ToField (ToField(..))
 import Text.Printf (printf)
 
 --Domain Model
