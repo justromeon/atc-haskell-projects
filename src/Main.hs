@@ -15,8 +15,7 @@ executeCommand cmd = do
         ViewTasks stat sorter -> displayTasks conn stat sorter
         CompleteTask taskId   -> setTaskComplete conn taskId
         DeleteTask taskId     -> deleteTask conn taskId
-        EditTask taskId d s p due -> updateTask conn taskId d s p due 
-        Quit                  -> putStrLn "Closing the Todo App... Thankyou!"
+        EditTask taskId d s p due -> updateTask conn taskId d s p due
     close conn
 
 main :: IO ()

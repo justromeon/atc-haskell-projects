@@ -43,7 +43,6 @@ data Command
       , editPriority    :: Maybe Priority
       , editDueDate     :: Maybe Day
       }
-  | Quit
   deriving Show
 
 data SortKey = ByDueDate | ByPriority
@@ -127,9 +126,6 @@ editTaskParser = EditTask
       <> help "New due date for the task (YYYY-MM-DD)" )
       )
 
-quitParser :: Parser Command
-quitParser = pure Quit
-
 -- Main CLI Parser
 commandParser :: Parser Command
 commandParser = hsubparser
@@ -137,8 +133,7 @@ commandParser = hsubparser
   <> command "view"     (info viewTasksParser    $ progDesc "View tasks") 
   <> command "complete" (info completeTaskParser $ progDesc "Mark a task as complete") 
   <> command "delete"   (info deleteTaskParser   $ progDesc "Delete a task") 
-  <> command "edit"     (info editTaskParser     $ progDesc "Edit a task") 
-  <> command "quit"     (info quitParser         $ progDesc "Quits the program")
+  <> command "edit"     (info editTaskParser     $ progDesc "Edit a task")
   )
 
 commandParserInfo :: ParserInfo Command
